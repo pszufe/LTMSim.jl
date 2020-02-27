@@ -1,3 +1,4 @@
+using DataStructures
 
 function generateHypergraph()
     h = Hypergraph{Bool}(5,3)
@@ -11,6 +12,7 @@ function generateHypergraph()
     actV[[1,4]] .= true;
     (h, actV, actE, metaV, metaE)
 end
+
 
 function simulate!(h::Hypergraph{Bool},
                   actV::Vector{Bool}, actE::Vector{Bool},
@@ -53,6 +55,7 @@ function randMetaV(h)
     metaV
 end
 
+
 function randMetaE(h)
     metaE = Vector{Int}(undef, nhe(h))
     for e in 1:nhe(h)
@@ -60,6 +63,7 @@ function randMetaE(h)
     end
     metaE
 end
+
 
 function proportionalMetaV(h::Hypergraph,prop)
     @assert 0.0 < prop <= 1.0
@@ -70,6 +74,7 @@ function proportionalMetaV(h::Hypergraph,prop)
     metaV
 end
 
+
 function proportionalMetaE(h::Hypergraph,prop)
     @assert 0.0 < prop <= 1.0
     metaE = Vector{Int}(undef, nhe(h))
@@ -78,48 +83,3 @@ function proportionalMetaE(h::Hypergraph,prop)
     end
     metaE
 end
-
-
-#bisection
-function bisect(h, metaV, metaE)
-    degrees = length.(h.v2he)
-    #location=Int(ceil(length(degrees)/2))
-    sortedVind = sortperm(degrees, rev=true)
-    left = 1
-    @assert length(sortedVind) == length(degrees)
-    right = length(sortedVind)
-    while left < right
-        location = Int(ceil( (left + right)/2))
-        #println("left=$left right=$right loc=$location ")
-        actE = zeros(Bool, nhe(h))
-        actV = zeros(Bool, nhv(h))
-        # up to the first location true and remainder zeros
-        actV[sortedVind[1:location]] .= true
-        sres = simulate!(h,actV, actE, metaV, metaE; printme = false)
-        if sres.actvs != nhv(h)
-            #println("left=location")
-            left = location
-        else
-            #println("right=location")
-            right = location-1
-        end
-    end
-    left+1
-end
-
-function randomH(nVertices, nEdges)
-    mx = Matrix{Union{Nothing,Bool}}(nothing, nVertices,nEdges)
-    for e in 1:size(mx,2)
-        nv = rand(2:5)
-        mx[sample(1:size(mx,1), nv;replace=false), e] .= true
-    end
-
-    h = Hypergraph(mx)
-    if all(length.(h.v2he) .> 0)
-        return h
-    else
-        return randomH(nVertices, nEdges)
-    end
-end
-
-

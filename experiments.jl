@@ -1,13 +1,11 @@
 using Pkg
 Pkg.activate(".")
 using LTMSim
-
-
+using SimpleHypergraphs
+using Random
 using Plots
 using DataFrames
-
-
-
+using TableView
 
 #metaV .= 1
 #metaE .= 1
@@ -92,6 +90,7 @@ Plots.gr()
 
 Plots.scatter(res.meanV .+ (rand(length(res.tsssize))*0.07) ,res.tsssize .+ (rand(length(res.tsssize)).*0.5), markersize=1)
 
+
 unique(res.tsssize)
 
 matplotlib_cm = pyimport("matplotlib.cm")
@@ -116,3 +115,30 @@ Plots.scatter(
 
 using Statistics
 cor(Matrix(res[:,[:meanV,:propMetaV,:tsssize]]))
+
+
+
+data_to_plot = Vector{Array{Any, 1}}()
+
+for propMetaV in unique(res, :propMetaV).propMetaV
+    series = filter(x->x.propMetaV == propMetaV, res).tsssize
+
+    push!(data_to_plot, series)
+end
+
+clf()
+fig = plt.figure(figsize=(12, 5))
+ax = fig.add_subplot(111)
+ax.boxplot(data_to_plot)
+
+xlabels = unique(res, :propMetaV).propMetaV
+xticks(1:length(xlabels), xlabels, rotation=0)
+
+ylabel("TSS size")
+xlabel("Vertices thresholds")
+
+gcf()
+
+plt.tight_layout(.5)
+
+PyPlot.savefig("/Users/carminespagnuolo/Dropbox/LTMSim.jl/res/scemek.png")
