@@ -65,10 +65,10 @@ function greedy_tss(h, metaV, metaE)
     end
 
     while length(U) != 0
-         max = sort(collect(U), by=x->x[2], rev = true)[1]
-
-         delete!(U, max.first)
-         push!(S, max)
+         #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
+		 maxv_val, maxv_key = findmax(U)
+         delete!(U, maxv_key)
+         S[maxv_key] = maxv_val
          actE = zeros(Bool, nhe(h))
          actV = zeros(Bool, nhv(h))
 
@@ -82,7 +82,7 @@ function greedy_tss(h, metaV, metaE)
              break
          end
 
-         for he in gethyperedges(h,max.first)
+         for he in gethyperedges(h,maxv_key)
              for nv in getvertices(h,he.first)
                  if !haskey(U,nv.first)
                      continue
@@ -131,39 +131,37 @@ by the nodes in *S* at stage *i*.
 Also referred to as *DynamicGreedy([H]₂)*.
 """
 function greedy_tss_2section(h, metaV, metaE)
-
     S = Dict{Int,Int}()
     U = Dict{Int,Int}()
 
     #init U set
     for v=1:nhv(h)
         heus = gethyperedges(h,v)
-        d = []
+        d = Set{Int}()
         for he in heus
-            append!(d,keys(getvertices(h,he.first)))
+            push!.(Ref(d),keys(getvertices(h,he.first)))
         end
-        d = unique(d)
         push!(U, v => length(d))
     end
 
     while length(U) != 0
-         max = sort(collect(U), by=x->x[2], rev = true)[1]
-
-         delete!(U, max.first)
-         push!(S, max)
+		 #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
+		 maxv_val, maxv_key = findmax(U)
+         delete!(U, maxv_key)
+         S[maxv_key] = maxv_val
          actE = zeros(Bool, nhe(h))
          actV = zeros(Bool, nhv(h))
          for s in S
               actV[s.first] = true
          end
-         simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
-
+	     simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
+ 
          if simres.actvs == nhv(h)
              break
          end
 
-         visited = []
-         for he in gethyperedges(h, max.first)
+         visited = Set{Int}()
+         for he in gethyperedges(h, maxv_key)
 
              for nv in getvertices(h,he.first)
 
@@ -172,14 +170,13 @@ function greedy_tss_2section(h, metaV, metaE)
                  end
                  push!(visited, nv.first)
 
-                 d = []
+                 d = Set{Int}()
                  for he2 in gethyperedges(h, nv.first)
                      if ! actE[he2.first]
-                         append!(d, keys(getvertices(h, he2.first)))
+                         push!.(Ref(d), keys(getvertices(h, he2.first)))
                      end
                  end
-
-                 push!(U, nv.first => length(unique(d)))
+                 U[nv.first] = length(d)
              end
          end
 
@@ -203,7 +200,7 @@ function sub_tss(h, metaV, metaE)
         push!(Esub, e => (length(getvertices(h,e)), metaE[e]))
     end
 
-    S = []
+    S = Int[]
     U = deepcopy(Vsub)
     HU = deepcopy(Esub)
 
@@ -214,7 +211,7 @@ function sub_tss(h, metaV, metaE)
         #case 1 sort the vertices in U for thresholds
         minny = nothing
         if length(U) > 0
-            minny = sort(collect(U), by=x->x[2][2], rev = false)[1]
+            minny = sort!(collect(U), by=x->x[2][2], rev = false)[1]
         end
         if minny != nothing && minny[2][2] == 0
             #case 1
@@ -225,7 +222,7 @@ function sub_tss(h, metaV, metaE)
         else
             candidatedge = nothing
             if length(HU) > 0
-                candidatedge = sort(collect(HU), by=x->x[2][2], rev = false)[1]
+                candidatedge = sort!(collect(HU), by=x->x[2][2], rev = false)[1]
             end
             if candidatedge != nothing && candidatedge[2][2] == 0
                 #println("CASE1b ", candidatedge[1])
@@ -248,7 +245,7 @@ function sub_tss(h, metaV, metaE)
                         toput2 = filter(x -> !(x in S) , candidate)
                         Uc = keys(U)
                         toput3 = filter(x -> !(x in Uc) , toput2)
-                        toput = sort(collect(toput3), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = false)[1]
+                        toput = sort!(collect(toput3), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = false)[1]
                     #    println("CASE2b ",collect(toput)[1] )
                         push!(S, toput)
 
@@ -259,8 +256,8 @@ function sub_tss(h, metaV, metaE)
 
 
                         #case 3
-                        mickey = sort(collect(U), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)[1]
-                        mickey2 = sort(collect(HU), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)[1]
+                        mickey = sort!(collect(U), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)[1]
+                        mickey2 = sort!(collect(HU), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)[1]
                     #    println("CASE3 ", mickey[1])
                         if (mickey[2][2] / (mickey[2][1] * (mickey[2][2]+1))) >
                             (mickey2[2][2] / (mickey2[2][1] * (mickey2[2][2]+1)))

@@ -13,18 +13,18 @@ using LaTeXStrings
 h = hg_load("/Users/carminespagnuolo/Dropbox/LTMSim.jl/data/got.hgf")
 
 nvalues = range(0.1, stop=0.9, step=0.1)
-runs = 10
-data = Dict{String, Array{Array{Int}}}()
+runs = 48
+data = Dict{String, Vector{Vector{Int}}}()
 
-push!(data, "BinarySearch(H)"=>Array{Array{Int,1},1}())
-push!(data, "Greedy(H)"=>Array{Array{Int,1},1}())
-push!(data, "Greedy([H]₂)"=>Array{Array{Int,1},1}())
+push!(data, "BinarySearch(H)"=>Vector{Vector{Int}}())
+push!(data, "Greedy(H)"=>Vector{Vector{Int}}())
+push!(data, "Greedy([H]₂)"=>Vector{Vector{Int}}())
 
 for n=nvalues
 
-    results1 = Array{Int,1}()
-    results2 = Array{Int,1}()
-    results3 = Array{Int,1}()
+    results1 = Vector{Int}()
+    results2 = Vector{Int}()
+    results3 = Vector{Int}()
 
     for run=1:runs
         #metaV = randMetaV(h)

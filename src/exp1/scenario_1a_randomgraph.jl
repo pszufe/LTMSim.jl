@@ -1,54 +1,41 @@
-using Pkg
+using Distributed, Pkg
+@everywhere using Distributed, Pkg
 Pkg.activate(".")
-using LTMSim
-using DataFrames
-using SimpleHypergraphs
-using Statistics
-using Plots
-using PyPlot
-using Random
-using Serialization
-using LaTeXStrings
+@everywhere Pkg.activate(".")
+using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Plots, PyPlot, Random, Serialization, LaTeXStrings
+@everywhere using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Random, Serialization
 
 nvalues = [100, 200, 400, 800]
-runs = 10
-data = Dict{String, Array{Array{Int}}}()
+runs = 48
+data = Dict{String, Vector{Vector{Int}}}()
 
-push!(data, "BinarySearch(H)"=>Array{Array{Int,1},1}())
-push!(data, "Greedy(H)"=>Array{Array{Int,1},1}())
-push!(data, "Greedy([H]₂)"=>Array{Array{Int,1},1}())
+data["BinarySearch(H)"]=Vector{Vector{Int}}()
+data["Greedy(H)"]=Vector{Vector{Int}}()
+data["Greedy([H]₂)"]=Vector{Vector{Int}}()
 
 for n=nvalues
-
-    results1 = Array{Int,1}()
-    results2 = Array{Int,1}()
-    results3 = Array{Int,1}()
-
-    for run=1:runs
+	println("n=$n")
+    results = @distributed (append!) for run=1:runs
+		println("run=$run at proc $(myid())")
+		Random.seed!(run)
         h = randomH(n,n)
         metaV = randMetaV(h)
         metaE = proportionalMetaE(h,0.5)
-
         r1 = greedy_tss_2section(h,metaV,metaE)
         r2 = bisect(h,metaV,metaE)
         r3 = greedy_tss(h,metaV,metaE)
-
-        push!(results1, r1)
-        push!(results2, r2)
-        push!(results3, r3)
-
+        [(r1,r2,r3)]
     end
-    push!(data["Greedy([H]₂)"], results1)
-    push!(data["BinarySearch(H)"], results2)
-    push!(data["Greedy(H)"], results3)
-
+    push!(data["Greedy([H]₂)"], [r[1] for r in results])
+    push!(data["BinarySearch(H)"], [r[2] for r in results])
+    push!(data["Greedy(H)"], [r[3] for r in results])
     println("end ", n)
 
 end
 
 
 ### data
-#serialize("res/paper/exp1/random-random.data", data)
+serialize("res/paper/exp1/random-random.data", data)
 data = deserialize("res/paper/exp1/random-random.data")
 
 labels = Dict{String, String}(
@@ -113,4 +100,4 @@ plt.tight_layout()
 
 gcf()
 
-PyPlot.savefig("res/paper/exp1/random-random.png")
+PyPlot.savefig("res/paper/exp1/random-random.pdf")
