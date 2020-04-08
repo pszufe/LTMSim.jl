@@ -453,8 +453,9 @@ function sub_tss_opt2(h, metaV, metaE)
 		#if exits a node with threshold 0 it is self-activated and we remove from the current graph
         if length(empty_th_nodes) > 0
 			#CASE 1 A
-			case1a += 1
+
 			while length(empty_th_nodes) != 0
+				case1a += 1
 				node_with_th_zero = pop!(empty_th_nodes)
 	            #remove minny from U and update U
 	            delete!(U, node_with_th_zero)
@@ -463,11 +464,11 @@ function sub_tss_opt2(h, metaV, metaE)
 			end
         else
 			#CASE 1 B
-
 			#here we find an edge with threshold 0
             if length(empty_th_edges) > 0
-				case1b += 1
+
 				while length(empty_th_edges) != 0
+					case1b += 1
 					candidatedge = pop!(empty_th_edges)
 	                #remove the edge from the current graph
 	                delete!(HU, candidatedge)
@@ -479,13 +480,13 @@ function sub_tss_opt2(h, metaV, metaE)
 				# NO EDGES AND NODES HAVE threshold equal to 0
 				# We look for a node with the threshold value greater than its degree
                 #upsidedown = filter(x -> x[2][2] > x[2][1], collect(U))#returns a list with this feature
-
 				if length(upsidedown) > 0
-					case2 += 1
+
 					#CASE 2 A
                 	#One node has t(v) > d(v), for this reason in order to be activated
 					# we have to insert in S because it cannot be activated by its neighbors
-					while length(upsidedown) > 0
+					while length(upsidedown) != 0
+						case2 += 1
 						node = pop!(upsidedown)
 						push!(S, node)
 						#update the current graph by removing this node, same case of CASE 1 A
