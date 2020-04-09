@@ -27,9 +27,9 @@ for n=nvalues
 
         r1 = greedy_tss_2section(h,metaV,metaE)
         r2 = bisect(h,metaV,metaE)
-        r3 = greedy_tss(h,metaV,metaE)
-
-        [(r1,r2,r3)]
+		r3 = greedy_tss(h,metaV,metaE)
+		r4 = sub_tss_opt2(h,metaV,metaE)
+		[(r1,r2,r3,r4)]
 
     end
     push!(data["Greedy([H]₂)"], [r[1] for r in results])

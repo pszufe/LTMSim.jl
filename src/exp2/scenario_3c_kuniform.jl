@@ -14,7 +14,7 @@ data = Dict{String, Vector{Vector{Int}}}()
 data["BinarySearch(H)"]=Vector{Vector{Int}}()
 data["Greedy(H)"]=Vector{Vector{Int}}()
 data["Greedy([H]₂)"]=Vector{Vector{Int}}()
-
+data["SubTSS(H)"]=Vector{Vector{Int}}()
 for n=nvalues
 	println("n=$n")
     results = @distributed (append!) for run=1:runs
@@ -24,13 +24,14 @@ for n=nvalues
         r1 = greedy_tss_2section(h, metaV, metaE)
         r2 = bisect(h,metaV,metaE)
         r3 = greedy_tss(h,metaV,metaE)
-
-        [(r1,r2,r3)]
+		r4 = sub_tss_opt2(h,metaV,metaE)
+		[(r1,r2,r3,r4)]
 
     end
     push!(data["Greedy([H]₂)"], [r[1] for r in results])
     push!(data["BinarySearch(H)"], [r[2] for r in results])
     push!(data["Greedy(H)"], [r[3] for r in results])
+	push!(data["SubTSS(H)"], [r[4][1] for r in results])
 
     println("end ", n)
 
@@ -44,7 +45,8 @@ data = deserialize("res/paper/exp2/random-k-500.data")
 labels_dict = Dict{String, String}(
     "BinarySearch(H)" => "StaticGreedy",
     "Greedy(H)" => "DynamicGreedy",
-    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}"
+    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}",
+	"SubTSS(H)" => "SubTSS"
 )
 
 ### plotting
@@ -58,11 +60,11 @@ plt.figure(figsize=(7,5))
 val = -0.4
 c = 1
 
-colorz=["#2C7BB6", "#D7191C", "#FF8900"]
+colorz=["#2C7BB6", "#D7191C", "#FF8900", "#33CC33"]
 
 labels = Array{String, 1}()
 
-for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)"]#keys(data)
+for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)"]#keys(data)
     global val, c
 
     y = Array{Float64, 1}()

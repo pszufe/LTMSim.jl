@@ -19,12 +19,14 @@ data = Dict{String, Vector{Vector{Int}}}()
 push!(data, "BinarySearch(H)"=>Vector{Vector{Int}}())
 push!(data, "Greedy(H)"=>Vector{Vector{Int}}())
 push!(data, "Greedy([H]₂)"=>Vector{Vector{Int}}())
+push!(data, "SubTSS(H)"=>Vector{Vector{Int}}())
 
 for n=nvalues
 
     results1 = Vector{Int}()
     results2 = Vector{Int}()
     results3 = Vector{Int}()
+    results4 = Vector{Int}()
 
     for run=1:runs
         #metaV = randMetaV(h)
@@ -38,12 +40,12 @@ for n=nvalues
         push!(results1, r1)
         push!(results2, r2)
         push!(results3, r3)
-
+        push!(results4, r4[1])
     end
     push!(data["Greedy([H]₂)"], results1)
     push!(data["BinarySearch(H)"], results2)
     push!(data["Greedy(H)"], results3)
-
+    push!(data["SubTSS(H)"], results4)
     println("end ", n)
 
 end
@@ -54,7 +56,8 @@ data = deserialize("res/paper/got/got-p.data")
 labels_dict = Dict{String, String}(
     "BinarySearch(H)" => "StaticGreedy",
     "Greedy(H)" => "DynamicGreedy",
-    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}"
+    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}",
+	"SubTSS(H)" => "SubTSS"
 )
 
 ticks = nvalues
@@ -73,11 +76,11 @@ plt.figure(figsize=(7,5))
 val = -0.4
 c = 1
 
-colorz=["#2C7BB6", "#D7191C", "#FF8900"]
+colorz=["#2C7BB6", "#D7191C", "#FF8900", "#33CC33"]
 
 labels = Array{String, 1}()
 
-for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)"]#keys(data)
+for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)"]#keys(data)
     global val, c
 
     y = Array{Float64, 1}()
