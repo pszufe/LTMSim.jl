@@ -12,6 +12,7 @@ data = Dict{String, Vector{Vector{Int}}}()
 data["BinarySearch(H)"]=Vector{Vector{Int}}()
 data["Greedy(H)"]=Vector{Vector{Int}}()
 data["Greedy([H]₂)"]=Vector{Vector{Int}}()
+data["SubTSS(H)"]=Vector{Vector{Int}}()
 
 for n=nvalues
 	println("n=$n")
@@ -34,7 +35,7 @@ for n=nvalues
     push!(data["Greedy([H]₂)"], [r[1] for r in results])
     push!(data["BinarySearch(H)"], [r[2] for r in results])
     push!(data["Greedy(H)"], [r[3] for r in results])
-
+	push!(data["SubTSS(H)"], [r[4][1] for r in results])
     println("end ",n)
 
 end
@@ -45,7 +46,8 @@ data = deserialize("res/paper/exp1/random-k.data")
 labels = Dict{String, String}(
     "BinarySearch(H)" => "StaticGreedy",
     "Greedy(H)" => "DynamicGreedy",
-    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}"
+    "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}",
+	"SubTSS(H)" => "SubTSS"
 )
 
 ticks = nvalues
@@ -64,9 +66,9 @@ plt.figure(figsize=(7,5))
 val = -0.4
 c = 1
 
-colorz=["#2C7BB6", "#D7191C", "#FF8900"]
+colorz=["#2C7BB6", "#D7191C", "#FF8900", "#33CC33"]
 
-for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)"]#keys(data)
+for algo in ["BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)"]#keys(data)
     global val, c
     b = plt.boxplot(
         data[algo],
@@ -84,6 +86,7 @@ end
 plt.plot([], c="#2C7BB6", label=labels["BinarySearch(H)"])#label=collect(keys(data))[1])
 plt.plot([], c="#D7191C", label=labels["Greedy([H]₂)"])#label=collect(keys(data))[2])
 plt.plot([], c="#FF8900", label=labels["Greedy(H)"])#label=collect(keys(data))[3])
+plt.plot([], c="#33CC33", label=labels["SubTSS(H)"])#label=collect(keys(data))[3])
 plt.legend(fontsize="x-large", loc = "lower right")
 
 plt.xticks(range(0, length(ticks) * 2, step=2), ticks, fontsize="x-large")
