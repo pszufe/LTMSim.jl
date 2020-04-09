@@ -9,10 +9,10 @@ using PyPlot
 using Random
 using Serialization
 
-h = hg_load("/Users/carminespagnuolo/Dropbox/LTMSim.jl/data/got.hgf")
+h = hg_load("data/got.hgf")
 
 nvalues = [nhv(h)]
-runs = 48
+runs = 10
 data = Dict{String, Vector{Vector{Int}}}()
 
 push!(data, "BinarySearch(H)"=>Vector{Vector{Int}}())

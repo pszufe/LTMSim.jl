@@ -10,7 +10,7 @@ using Random
 using Serialization
 using LaTeXStrings
 
-h = hg_load("/Users/carminespagnuolo/Dropbox/LTMSim.jl/data/got.hgf")
+h = hg_load("data/got.hgf")
 
 nvalues = range(0.1, stop=0.9, step=0.1)
 runs = 48

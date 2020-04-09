@@ -1,4 +1,5 @@
 using Distributed, Pkg
+addprocs(8)
 @everywhere using Distributed, Pkg
 Pkg.activate(".")
 @everywhere Pkg.activate(".")
@@ -6,7 +7,7 @@ using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Plots, PyPlot, Random, 
 @everywhere using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Random, Serialization
 
 nvalues = [10, 20, 40, 80]
-runs = 48
+runs = 10
 data = Dict{String, Vector{Vector{Int}}}()
 
 data["BinarySearch(H)"]=Vector{Vector{Int}}()
