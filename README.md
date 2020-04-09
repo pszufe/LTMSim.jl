@@ -7,7 +7,7 @@ by
 
 - Alessia Antelmi
 - Gennaro Cordasco
-- Carmine Spaugnoulo
+- Carmine Spagnuolo
 - Przemyslaw Szufel
 
 | **Documentation** | **Build Status** |
