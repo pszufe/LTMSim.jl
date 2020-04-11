@@ -7,17 +7,16 @@ using PyPlot
 using Random
 
 h_random = randomH(100,100)
-h_pref = randomHpreferential(100, 0.5)
+h_pref = randomHpreferential(500, 0.5)
 h_k = randomHkuniform(100, 100, 10)
 h_d = randomHduniform(100, 100, 10)
 
 h = hg_load("data/got.hgf")
 
 
-h = h
-metaV = proportionalMetaV(h,0.5) #randMetaV(h)
-metaE = proportionalMetaE(h,0.5)
-
+h = h_pref
+metaV = proportionalMetaV(h,0.1) #randMetaV(h)
+metaE = proportionalMetaE(h,0.1)
 r4 = sub_tss_opt2(h, metaV, metaE)
 r1 = greedy_tss_2section(h,metaV,metaE)
 r2 = bisect(h,metaV,metaE)

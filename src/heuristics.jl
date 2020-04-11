@@ -548,7 +548,6 @@ function sub_tss_opt2(h, metaV, metaE)
 		i = 1
 		for v in simres.actvsnodes
 			v == false && println(i," ",v, " ", length(gethyperedges(h,i)), " ",metaV[i]," ", gethyperedges(h,i))
-
 			i+=1
 		end
 
