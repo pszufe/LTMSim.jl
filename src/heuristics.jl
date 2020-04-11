@@ -423,12 +423,11 @@ function sub_tss_opt1(h, metaV, metaE)
 end
 
 function sub_tss_opt2(h, metaV, metaE)
-
     Vsub = Dict{Int,Tuple{Int,Int}}() #map for each node the degree and thresholds
     Esub = Dict{Int,Tuple{Int,Int}}() #map for each edges the size and thresholds
 	#init structures
     for v=1:nhv(h)
-        push!(Vsub, v => (length( gethyperedges(h,v)),metaV[v]))
+        push!(Vsub, v => (length(gethyperedges(h,v)), metaV[v]))
     end
     for e=1:nhe(h)
         push!(Esub, e => (length(getvertices(h,e)), metaE[e]))
@@ -439,12 +438,12 @@ function sub_tss_opt2(h, metaV, metaE)
     U = deepcopy(Vsub) #clone vertices
     HU = deepcopy(Esub) #clone edges
 
-	upsidedown = Int[]
+	upsidedown = Set{Int}()
 
-	empty_th_nodes  = Int[]
-	empty_th_edges  = Int[]
+	empty_th_nodes  = Set{Int}()
+	empty_th_edges  = Set{Int}()
 
-	case1a = case1b = case2 = case3a =case3b =0
+	case1a = case1b = case2 = case3a = case3b =0
 
 	#whilethe graph is no empty (no nodes or no edges)
     while length(U) != 0
@@ -457,6 +456,7 @@ function sub_tss_opt2(h, metaV, metaE)
 			while length(empty_th_nodes) != 0
 				case1a += 1
 				node_with_th_zero = pop!(empty_th_nodes)
+				#println("Case1A ",node_with_th_zero)
 	            #remove minny from U and update U
 	            delete!(U, node_with_th_zero)
 				#if remove the node we have to reduce the threshold and the size of the containing edges
@@ -468,8 +468,10 @@ function sub_tss_opt2(h, metaV, metaE)
             if length(empty_th_edges) > 0
 
 				while length(empty_th_edges) != 0
+
 					case1b += 1
 					candidatedge = pop!(empty_th_edges)
+					#println("Case1B ", candidatedge)
 	                #remove the edge from the current graph
 	                delete!(HU, candidatedge)
 					#update the nodes inside the selected edge by decreasing threshold and degree
@@ -488,6 +490,7 @@ function sub_tss_opt2(h, metaV, metaE)
 					while length(upsidedown) != 0
 						case2 += 1
 						node = pop!(upsidedown)
+						#println("Case2 ", node)
 						push!(S, node)
 						#update the current graph by removing this node, same case of CASE 1 A
 						delete!(U, node)
@@ -496,7 +499,7 @@ function sub_tss_opt2(h, metaV, metaE)
                 else
 					#CASE 3
 					#max node for a formula value
-					candidate_nodes = sort!(collect(U), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)
+					candidate_nodes = sort!(collect(U), by= x-> ( x[2][2] / (x[2][1] * (x[2][1]+1)) ), rev = true)
 					candidate_node = nothing
 					for u in candidate_nodes
 						ok = true
@@ -512,16 +515,18 @@ function sub_tss_opt2(h, metaV, metaE)
 						end
 					end
 					#max edge for a formula value
-					candidate_edge = sort!(collect(HU), by=x-> (x[2][2] / (x[2][1] * (x[2][2]+1))), rev = true)[1]
+					candidate_edge = sort!(collect(HU), by=x-> (x[2][2] / (x[2][1] * (x[2][1]+1))), rev = true)[1]
 
 					if (candidate_node != nothing &&
-						candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][2]+1)))  >
-						(candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][2]+1)))
-						case3b += 1
+						candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][1]+1)))  >
+						(candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][1]+1)))
+						case3a += 1
+						#println("Case 3A ", candidate_node[1])
 						delete!(U, candidate_node[1])
 						updateHUSizeOnly!(h, candidate_node[1], HU)
 					else
-						case3a += 1
+						case3b += 1
+						#println("Case 3B ", candidate_edge[1])
 						delete!(HU, candidate_edge[1])
 						updateUDegreeOnly!(h, candidate_edge[1], U, upsidedown)
 					end
@@ -540,6 +545,13 @@ function sub_tss_opt2(h, metaV, metaE)
 
     if simres.actvs != nhv(h)
         println("ARGGGG ", simres.actvs, " ", nhv(h))
+		i = 1
+		for v in simres.actvsnodes
+			v == false && println(i," ",v, " ", length(gethyperedges(h,i)), " ",metaV[i]," ", gethyperedges(h,i))
+
+			i+=1
+		end
+
     end
 
     length(S), case1a, case1b, case2, case3a, case3b
@@ -597,9 +609,6 @@ function updateU!(h, e, U, list)
         end
     end
 end
-
-
-
 
 
 
