@@ -7,12 +7,13 @@ using Plots
 using DataFrames
 using TableView
 
+
 #metaV .= 1
 #metaE .= 1
 h, actV, actE, metaV, metaE = generateHypergraph();
 bisect(h, metaV, metaE)
 
-
+ 
 res = DataFrame(id=Int[],meanV=Float64[],tsssize=Int[])
 for id in 1:1000
     h = randomH(8,6)
@@ -64,7 +65,6 @@ simulate!(h,actV, actE, metaV, metaE;max_step=1)
 plotH(h,metaV,metaE, actV, actE)
 
 bisect(h, metaV, metaE)
-
 
 #H.incidence_dict
 
