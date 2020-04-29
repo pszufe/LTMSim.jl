@@ -7,7 +7,7 @@ using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Plots, PyPlot, Random, 
 
 
 metav = range(0.1, stop = 0.9, step = 0.1)
-runs = 2
+runs = 1
 N = 50
 M = 50
 r = 1
@@ -47,10 +47,11 @@ for metae = [0.2,0.5,0.8]
 				r2 = bisect(g[2], metaV, metaE)
 				println("greedy_tss ")
 				r3 = greedy_tss(g[2], metaV, metaE)
-				println("greedy_tss_2section ")
+				println("sub_tss_opt2 ")
 				r4 = sub_tss_opt2(g[2], metaV, metaE)
 
 				[(r1, r2, r3, r4[1])]
+				println("end mv=$n me=$metae n=$(nhv(g[2])) e=$(nhe(g[2]))")
 
 		    end
 		    push!(data["Greedy([H]₂)"], [r[1] for r in results])
