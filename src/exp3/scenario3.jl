@@ -53,9 +53,10 @@ for metae in [0.2,0.5,0.8]
 			
 				r4 = sub_tss_opt2(g[2], metaV, metaE)
 				println("sub_tss_opt2 ")
-
-				[(r1, r2, r3, r4[1])]
 				println("end mv=$n me=$metae n=$(nhv(g[2])) e=$(nhe(g[2]))")
+				
+				[(r1, r2, r3, r4[1])]
+				
 
 		    end
 		    push!(data["Greedy([H]₂)"], [r[1] for r in results])
