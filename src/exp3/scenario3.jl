@@ -37,18 +37,18 @@ for metae = [0.2,0.5,0.8]
 		data["SubTSS(H)"] = Vector{Vector{Int}}()
 
 		for n = metav
-
-			println("n=$n")
+			s = size(g)
+			println("n=$n size=$s")
 		    results = @distributed (append!) for run = 1:runs
 		        metaV = proportionalMetaV(g[2], n)
 		        metaE = proportionalMetaE(g[2], metae)
-				println("greedy_tss_2section $(size(g))")
+				println("greedy_tss_2section")
 				r1 = greedy_tss_2section(g[2], metaV, metaE)
-				println("bisect $(size(g))")
+				println("bisect ")
 				r2 = bisect(g[2], metaV, metaE)
-				println("greedy_tss $(size(g))")
+				println("greedy_tss ")
 				r3 = greedy_tss(g[2], metaV, metaE)
-				println("sub_tss_opt2 $(size(g))")
+				println("greedy_tss_2section ")
 				r4 = sub_tss_opt2(g[2], metaV, metaE)
 
 				[(r1, r2, r3, r4[1])]
