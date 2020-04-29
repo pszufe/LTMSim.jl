@@ -37,8 +37,7 @@ for metae = [0.2,0.5,0.8]
 		data["SubTSS(H)"] = Vector{Vector{Int}}()
 
 		for n = metav
-			s = size(g)
-			println("n=$n size=$s")
+			println("mv=$n me=$metae n=$(nhv(g)) e=$(nhe(g))")
 		    results = @distributed (append!) for run = 1:runs
 		        metaV = proportionalMetaV(g[2], n)
 		        metaE = proportionalMetaE(g[2], metae)
