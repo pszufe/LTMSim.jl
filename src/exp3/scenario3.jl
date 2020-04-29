@@ -41,14 +41,18 @@ for metae = [0.2,0.5,0.8]
 		    results = @distributed (append!) for run = 1:runs
 		        metaV = proportionalMetaV(g[2], n)
 		        metaE = proportionalMetaE(g[2], metae)
-				println("greedy_tss_2section")
+				
 				r1 = greedy_tss_2section(g[2], metaV, metaE)
-				println("bisect ")
+				println("greedy_tss_2section")
+			
 				r2 = bisect(g[2], metaV, metaE)
-				println("greedy_tss ")
+				println("bisect ")
+				
 				r3 = greedy_tss(g[2], metaV, metaE)
-				println("sub_tss_opt2 ")
+				println("greedy_tss ")
+			
 				r4 = sub_tss_opt2(g[2], metaV, metaE)
+				println("sub_tss_opt2 ")
 
 				[(r1, r2, r3, r4[1])]
 				println("end mv=$n me=$metae n=$(nhv(g[2])) e=$(nhe(g[2]))")
