@@ -6,7 +6,7 @@ using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Plots, PyPlot, Random, 
 @everywhere using LTMSim, DataFrames, SimpleHypergraphs, Statistics, Random, Serialization
 
 
-metav = range(0.0, stop = 0.9, step = 0.1)
+metav = range(0.1, stop = 0.9, step = 0.1)
 runs = 1
 N = 50
 M = 50
