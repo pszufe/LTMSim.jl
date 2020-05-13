@@ -18,9 +18,11 @@ export proportionalMetaV, proportionalMetaE
 export randomH, randomHkuniform, randomHduniform, randomHpreferential
 export bisect, greedy_tss, greedy_tss_2section, sub_tss, sub_tss_opt1, sub_tss_opt2, sub_tss_opt3, sub_tss_opt4
 
+export dual
 
 include("tools.jl")
 include("random_models.jl")
 include("heuristics.jl")
+include("dual.jl")
 
 end # module

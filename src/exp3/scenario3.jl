@@ -22,7 +22,7 @@ r = 1
 # 		  ("RandomD", hd),
 # 		  ("RandomP", hp)
 # 		  ,("GoT", hg)]
-graphs = [("NBA", hg_load("data/nba.hgf")),
+graphs = [("NBA", dual(hg_load("data/nba.hgf"))),
 		  ("DBLP-2017", hg_load("data/dblp.hgf"))]
 
 gres = Dict{String,Any}()
@@ -41,22 +41,22 @@ for metae in [0.2,0.5,0.8]
 		    results = @distributed (append!) for run = 1:runs
 		        metaV = proportionalMetaV(g[2], n)
 		        metaE = proportionalMetaE(g[2], metae)
-				
+
 				r1 = greedy_tss_2section(g[2], metaV, metaE)
 				println("greedy_tss_2section")
-			
+
 				r2 = bisect(g[2], metaV, metaE)
 				println("bisect ")
-				
+
 				r3 = greedy_tss(g[2], metaV, metaE)
 				println("greedy_tss ")
-			
+
 				r4 = sub_tss_opt2(g[2], metaV, metaE)
 				println("sub_tss_opt2 ")
 				println("end mv=$n me=$metae n=$(nhv(g[2])) e=$(nhe(g[2]))")
-				
+
 				[(r1, r2, r3, r4[1])]
-				
+
 
 		    end
 		    push!(data["Greedy([H]₂)"], [r[1] for r in results])
@@ -110,15 +110,17 @@ for metae = [0.2,0.5,0.8]
 		        labels_dict[algo]
 		    )
 
-		    b = plt.plot(collect(metav), y, color = colorz[c])
+		    b = plt.plot(collect(metav), y, "bo", color = colorz[c])
 
 		    c += 1
+
+			println(y)
 		end
 		plt.title("graph-$(g[1])-meta-e-$metae")
 		plt.legend(labels, fontsize = "x-large", loc = "lower right")
 
 		# plt.xlim(-2, length(ticks)*2)
-		# plt.ylim(0, 280)
+		#plt.ylim(0, 30)
 
 		plt.xticks(ticks, fontsize = "x-large") # range(0, length(ticks) * 2, step=2),
 		plt.yticks(fontsize = "x-large")
@@ -133,7 +135,6 @@ for metae = [0.2,0.5,0.8]
 		PyPlot.savefig("res/paper/exp3/graph-$(g[1])-meta-e-$metae.png")
 		println("res/paper/exp3/graph-$(g[1])-meta-e-$metae.png")
 
-		plt.clf()
+		#plt.clf()
 	end
 end
-
