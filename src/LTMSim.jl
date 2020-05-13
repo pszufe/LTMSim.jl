@@ -16,7 +16,7 @@ export randMetaV, randMetaE
 export proportionalMetaV, proportionalMetaE
 
 export randomH, randomHkuniform, randomHduniform, randomHpreferential
-export bisect, greedy_tss, greedy_tss_2section, sub_tss, sub_tss_opt1, sub_tss_opt2
+export bisect, greedy_tss, greedy_tss_2section, sub_tss, sub_tss_opt1, sub_tss_opt2, sub_tss_opt3, sub_tss_opt4
 
 
 include("tools.jl")

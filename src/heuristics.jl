@@ -425,14 +425,21 @@ end
 function sub_tss_opt2(h, metaV, metaE)
     Vsub = Dict{Int,Tuple{Int,Int}}() #map for each node the degree and thresholds
     Esub = Dict{Int,Tuple{Int,Int}}() #map for each edges the size and thresholds
+    avg_degree = 0
+    avg_size = 0
 	#init structures
     for v=1:nhv(h)
         push!(Vsub, v => (length(gethyperedges(h,v)), metaV[v]))
+        avg_degree += length(gethyperedges(h,v))
     end
     for e=1:nhe(h)
         push!(Esub, e => (length(getvertices(h,e)), metaE[e]))
+        avg_size += length(getvertices(h,e))
     end
-	#end init
+    avg_degree /= nhv(h)
+    avg_size /= nhe(h)
+
+    println("avg degree ",avg_degree," avg size ",avg_size)
 
     S = Int[] #the seed set
     U = deepcopy(Vsub) #clone vertices
@@ -518,8 +525,8 @@ function sub_tss_opt2(h, metaV, metaE)
 					candidate_edge = sort!(collect(HU), by=x-> (x[2][2] / (x[2][1] * (x[2][1]+1))), rev = true)[1]
 
 					if (candidate_node != nothing &&
-						candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][1]+1)))  >
-						(candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][1]+1)))
+						avg_size * (candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][1]+1)))) >
+						avg_degree * ((candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][1]+1))))
 						case3a += 1
 						#println("Case 3A ", candidate_node[1])
 						delete!(U, candidate_node[1])
@@ -560,8 +567,22 @@ function updateUDegreeOnly!(h, e, U, list)
     for w in getvertices(h,e)
         if haskey(U, w.first)
             push!(U, w.first => (max(0, U[w.first][1]-1), U[w.first][2]))
-			if U[w.first][1] <  U[w.first][2]
+            if U[w.first][1] <  U[w.first][2]
 				push!(list, w.first)
+			end
+        end
+    end
+end
+
+function updateUDegreeOnly!(h, e, U, list, LU)
+   
+    for w in getvertices(h,e)
+        if haskey(U, w.first)
+            push!(U, w.first => (max(0, U[w.first][1]-1), U[w.first][2]))
+            if U[w.first][1] <  U[w.first][2]
+                if !(w.first in LU)
+                    push!(list, w.first)
+                end
 			end
         end
     end
@@ -578,7 +599,6 @@ function updateHUSizeOnly!(h, v, Esub)
         end
     end
 end
-
 
 
 #Update the graph by decreasing the size and threshold of edges, due to a new node is removed from the current graph
@@ -608,6 +628,378 @@ function updateU!(h, e, U, list)
         end
     end
 end
+
+#Update the graph by decreasing the size and threshold of edges, due to a new node is removed from the current graph
+function updateHUThOnly!(h, v, Esub, list)
+    for he in gethyperedges(h, v)
+		#if the edge is in the current graph
+        if haskey(Esub, he.first)
+			#we decrese of 1 both size and threshold
+            push!(Esub, he.first =>
+						(Esub[he.first][1], max(0, Esub[he.first][2]-1)))
+			if  Esub[he.first][2] == 0
+				push!(list, he.first)
+			end
+        end
+    end
+end
+
+#Update the graph by decreasing the degree and threshold of nodes, due to a removing edge
+function updateUThOnly!(h, e, U, list)
+    for w in getvertices(h,e)
+        if haskey(U, w.first)
+            push!(U, w.first =>
+					(U[w.first][1], max(0, U[w.first][2]-1)))
+			if U[w.first][2] == 0
+				push!(list, w.first)
+			end
+        end
+    end
+end
+
+
+
+function sub_tss_opt3(h, metaV, metaE)
+
+    Vsub = Dict{Int,Tuple{Int,Int}}() #map for each node the degree and thresholds
+    Esub = Dict{Int,Tuple{Int,Int}}() #map for each edges the size and thresholds
+
+    avg_degree = 0
+    avg_size = 0
+	#init structures
+    for v=1:nhv(h)
+        push!(Vsub, v => (length(gethyperedges(h,v)), metaV[v]))
+        avg_degree += length(gethyperedges(h,v))
+    end
+    for e=1:nhe(h)
+        push!(Esub, e => (length(getvertices(h,e)), metaE[e]))
+        avg_size += length(getvertices(h,e))
+    end
+    avg_degree /= nhv(h)
+    avg_size /= nhe(h)
+
+    println("avg degree ",avg_degree," avg size ",avg_size)
+	#end init
+
+    S = Int[] #the seed set
+    LU = Set{Int}() #limbo nodes
+    LHU = Set{Int}() #limbo edges
+    U = deepcopy(Vsub) #clone vertices
+    HU = deepcopy(Esub) #clone edges
+
+	upsidedown = Set{Int}()
+
+	empty_th_nodes  = Set{Int}()
+	empty_th_edges  = Set{Int}()
+
+    case1a = case1b = case2 = case3a = case3b =0
+    
+    flag = true
+
+	#whilethe graph is no empty (no nodes or no edges)
+    while length(U) != 0
+
+        #CASE  1
+		#if exits a node with threshold 0 it is self-activated and we remove from the current graph
+        if length(empty_th_nodes) > 0
+			#CASE 1 A
+
+			while length(empty_th_nodes) != 0
+				case1a += 1
+				node_with_th_zero = pop!(empty_th_nodes)
+				#println("Case1A ",node_with_th_zero)
+	            #remove minny from U and update U
+	            delete!(U, node_with_th_zero)
+				#if remove the node we have to reduce the threshold and the size of the containing edges
+	            #updateHU!(h, node_with_th_zero, HU, empty_th_edges)
+                updateHUThOnly!(h, node_with_th_zero, HU, empty_th_edges)
+                if !(node_with_th_zero in LU)
+                    delete!(LU, node_with_th_zero)
+                    updateHUSizeOnly!(h, node_with_th_zero, HU)
+                end
+            end
+        else
+			#CASE 1 B
+			#here we find an edge with threshold 0
+            if length(empty_th_edges) > 0
+
+				while length(empty_th_edges) != 0
+
+					case1b += 1
+					candidatedge = pop!(empty_th_edges)
+				#	println("Case1B ", candidatedge)
+	                #remove the edge from the current graph
+	                delete!(HU, candidatedge)
+					#update the nodes inside the selected edge by decreasing threshold and degree
+                    #updateU!(h, candidatedge, U, empty_th_nodes)
+                    updateUThOnly!(h, candidatedge, U, empty_th_nodes)
+                    if !(candidatedge in LHU)
+                        delete!(LHU, candidatedge)
+                        updateUDegreeOnly!(h, candidatedge, U, upsidedown, LU)
+                    end
+				end
+            else
+				# CASE 2
+				# NO EDGES AND NODES HAVE threshold equal to 0
+				# We look for a node with the threshold value greater than its degree
+                #upsidedown = filter(x -> x[2][2] > x[2][1], collect(U))#returns a list with this feature
+				if length(upsidedown) > 0
+
+					#CASE 2 A
+                	#One node has t(v) > d(v), for this reason in order to be activated
+					# we have to insert in S because it cannot be activated by its neighbors
+					while length(upsidedown) != 0
+						case2 += 1
+						node = pop!(upsidedown)
+						#println("Case2 ", node)
+						push!(S, node)
+						#update the current graph by removing this node, same case of CASE 1 A
+						delete!(U, node)
+                        #updateHU!(h, node, HU, empty_th_edges)
+                        updateHUThOnly!(h, node, HU, empty_th_edges)
+                        updateHUSizeOnly!(h, node, HU)
+					end
+                else
+					#CASE 3
+                    #max node for a formula value
+                    U_selected = filter(x -> !(x[1] in LU), collect(U))
+					candidate_nodes = sort!(collect(U_selected), by= x-> ( x[2][2] / (x[2][1] * (x[2][1]+1)) ), rev = true)
+					candidate_node = nothing
+					for u in candidate_nodes
+						ok = true
+						for he in gethyperedges(h, u.first)
+							if haskey(HU, he.first) && HU[he.first][1] == HU[he.first][2]
+								ok = false
+								break
+							end
+						end
+						if ok
+							candidate_node = u
+							break
+						end
+					end
+                    #max edge for a formula value
+                    HU_selected = filter(x -> !(x[1] in LHU), collect(HU)) 
+					candidate_edge = sort!(collect(HU_selected), by=x-> (x[2][2] / (x[2][1] * (x[2][1]+1))), rev = true)[1]
+
+					if (candidate_node != nothing &&
+						avg_size * (candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][1]+1)))  >
+						avg_degree * (candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][1]+1))) )
+                    
+                        case3a += 1
+					#	println("Case 3A ", candidate_node[1])
+                        #delete!(U, candidate_node[1])
+                        push!(LU, candidate_node[1])
+                        updateHUSizeOnly!(h, candidate_node[1], HU)
+                        flag = false
+					else
+						case3b += 1
+					#	println("Case 3B ", candidate_edge[1])
+                        #delete!(HU, candidate_edge[1])
+                        push!(LHU, candidate_edge[1])
+                        updateUDegreeOnly!(h, candidate_edge[1], U, upsidedown, LU)
+                        flag = true
+					end
+                end
+            end
+        end
+    end
+
+    actE = zeros(Bool, nhe(h))
+    actV = zeros(Bool, nhv(h))
+
+    for s in S
+         actV[s] = true
+    end
+    simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
+
+    if simres.actvs != nhv(h)
+        println("ARGGGG ", simres.actvs, " ", nhv(h))
+		i = 1
+		for v in simres.actvsnodes
+			v == false && println(i," ",v, " ", length(gethyperedges(h,i)), " ",metaV[i]," ", gethyperedges(h,i))
+			i+=1
+		end
+
+    end
+
+    length(S), case1a, case1b, case2, case3a, case3b
+end
+
+function updateUDegreeOnly2!(h, e, U, list, LU)
+   
+    for w in getvertices(h,e)
+        if haskey(U, w.first)
+            push!(U, w.first => (max(0, U[w.first][1]-1), U[w.first][2]))
+            if U[w.first][1] <  U[w.first][2]
+               #=  if w.first in LU
+                    println("Oh my god: in(w.first, LU) by updateUDegreeOnly")
+                    println(w.first)
+                    println(LU)   
+                end =#
+                push!(list, w.first)
+			end
+        end
+    end
+end
+
+function sub_tss_opt4(h, metaV, metaE)
+    Vsub = Dict{Int,Tuple{Int,Int}}() #map for each node the degree and thresholds
+    Esub = Dict{Int,Tuple{Int,Int}}() #map for each edges the size and thresholds
+	#init structures
+    for v=1:nhv(h)
+        push!(Vsub, v => (length(gethyperedges(h,v)), metaV[v]))
+    end
+    for e=1:nhe(h)
+        push!(Esub, e => (length(getvertices(h,e)), metaE[e]))
+    end
+	#end init
+
+    S = Int[] #the seed set
+    LU = Set{Int}() #limbo nodes
+    LHU = Set{Int}() #limbo edges
+    U = deepcopy(Vsub) #clone vertices
+    HU = deepcopy(Esub) #clone edges
+
+	upsidedown = Set{Int}()
+
+	empty_th_nodes  = Set{Int}()
+	empty_th_edges  = Set{Int}()
+
+	case1a = case1b = case2 = case3a = case3b =0
+
+	#whilethe graph is no empty (no nodes or no edges)
+    while length(U) != 0
+
+        #CASE  1
+		#if exits a node with threshold 0 it is self-activated and we remove from the current graph
+        if length(empty_th_nodes) > 0
+			#CASE 1 A
+
+			while length(empty_th_nodes) != 0
+				case1a += 1
+				node_with_th_zero = pop!(empty_th_nodes)
+				#println("Case1A ",node_with_th_zero)
+	            #remove minny from U and update U
+	            delete!(U, node_with_th_zero)
+				#if remove the node we have to reduce the threshold and the size of the containing edges
+	            #updateHU!(h, node_with_th_zero, HU, empty_th_edges)
+                updateHUThOnly!(h, node_with_th_zero, HU, empty_th_edges)
+                if !(node_with_th_zero in LU)
+                    delete!(LU, node_with_th_zero)
+                    updateHUSizeOnly!(h, node_with_th_zero, HU)
+                end
+            end
+        else
+			#CASE 1 B
+			#here we find an edge with threshold 0
+            if length(empty_th_edges) > 0
+
+				while length(empty_th_edges) != 0
+
+					case1b += 1
+					candidatedge = pop!(empty_th_edges)
+					#println("Case1B ", candidatedge)
+	                #remove the edge from the current graph
+	                delete!(HU, candidatedge)
+					#update the nodes inside the selected edge by decreasing threshold and degree
+                    #updateU!(h, candidatedge, U, empty_th_nodes)
+                    updateUThOnly!(h, candidatedge, U, empty_th_nodes)
+                    if !(candidatedge in LHU)
+                        delete!(LHU, candidatedge)
+                        updateUDegreeOnly2!(h, candidatedge, U, upsidedown, LU)
+                    end
+				end
+            else
+				# CASE 2
+				# NO EDGES AND NODES HAVE threshold equal to 0
+				# We look for a node with the threshold value greater than its degree
+                #upsidedown = filter(x -> x[2][2] > x[2][1], collect(U))#returns a list with this feature
+				if length(upsidedown) > 0
+
+					#CASE 2 A
+                	#One node has t(v) > d(v), for this reason in order to be activated
+					# we have to insert in S because it cannot be activated by its neighbors
+					while length(upsidedown) != 0
+						case2 += 1
+						node = pop!(upsidedown)
+						#println("Case2 ", node)
+						push!(S, node)
+						#update the current graph by removing this node, same case of CASE 1 A
+						delete!(U, node)
+                        #updateHU!(h, node, HU, empty_th_edges)
+                        updateHUThOnly!(h, node, HU, empty_th_edges)
+                        if !(node in LU)
+                            delete!(LU, node)
+                            updateHUSizeOnly!(h, node, HU)
+                        end
+					end
+                else
+					#CASE 3
+					#max node for a formula value
+                    U_selected = filter(x -> !(x[1] in LU), collect(U))
+					candidate_nodes = sort!(collect(U_selected), by= x-> ( x[2][2] / (x[2][1] * (x[2][1]+1)) ), rev = true)
+					candidate_node = nothing
+					for u in candidate_nodes
+						ok = true
+						for he in gethyperedges(h, u.first)
+							if haskey(HU, he.first) && HU[he.first][1] == HU[he.first][2]
+								ok = false
+								break
+							end
+						end
+						if ok
+							candidate_node = u
+							break
+						end
+					end
+					#max edge for a formula value
+                    HU_selected = filter(x -> !(x[1] in LHU), collect(HU)) 
+                    candidate_edge = sort!(collect(HU_selected), by=x-> (x[2][2] / (x[2][1] * (x[2][1]+1))), rev = true)[1]
+                    
+					if (candidate_node != nothing &&
+						candidate_node[2][2] / (candidate_node[2][1] * (candidate_node[2][1]+1)))  >
+						(candidate_edge[2][2] / (candidate_edge[2][1] * (candidate_edge[2][1]+1)))
+						case3a += 1
+						#println("Case 3A ", candidate_node[1])
+                        #delete!(U, candidate_node[1])
+                        push!(LU, candidate_node[1])
+                        updateHUSizeOnly!(h, candidate_node[1], HU)
+					else
+						case3b += 1
+						#println("Case 3B ", candidate_edge[1])
+                        #delete!(HU, candidate_edge[1])
+                        push!(LHU, candidate_edge[1])
+						updateUDegreeOnly2!(h, candidate_edge[1], U, upsidedown, LU)
+					end
+                end
+            end
+        end
+    end
+
+    actE = zeros(Bool, nhe(h))
+    actV = zeros(Bool, nhv(h))
+
+    for s in S
+         actV[s] = true
+    end
+    simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
+
+    if simres.actvs != nhv(h)
+        println("ARGGGG ", simres.actvs, " ", nhv(h))
+		i = 1
+		for v in simres.actvsnodes
+			v == false && println(i," ",v, " ", length(gethyperedges(h,i)), " ",metaV[i]," ", gethyperedges(h,i))
+			i+=1
+		end
+
+    end
+
+    length(S), case1a, case1b, case2, case3a, case3b
+end
+
+
+
 
 
 
