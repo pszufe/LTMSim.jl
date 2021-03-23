@@ -7,14 +7,21 @@ using LightGraphs
 using Plots
 using JSON
 using Dates
-#https://data.mendeley.com/datasets/ct8f9skv97/1
+
+# download the data from
+# https://data.mendeley.com/datasets/ct8f9skv97/1
 df = DataFrame()
 
 nodes = Dict{String, Int}()
 edges = Vector{Vector{String}}()
 nodeid = 1
 max_year = 0
-for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/dblp.json")
+
+df = DateFormat("y-m-d")
+
+papers_per_year = Dict{Int, Int}()
+
+for line in readlines("data/json/dblp.json")
     jsonline = JSON.parse(line)    
     edge = Vector{String}()
     
@@ -27,7 +34,13 @@ for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/dblp.json"
     if max_year < year
         global max_year = year
     end
-    year  <= 2016 && continue;
+
+    year <= 2016 && continue; 
+
+    dt = Date(jsonline["mdate"], df)
+    Dates.month(dt) <= 5 && continue
+
+    papers_per_year[year] = get!(papers_per_year, year, 0) + 1
     
     authors = typeof(jsonline["author"]) == Array{Any,1} ?
                         jsonline["author"] : 
@@ -39,6 +52,7 @@ for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/dblp.json"
         push!(edge, author)
     end
     push!(edges, edge)
+
     global nodeid
     for v in edge
         if !haskey(nodes, string(v))
@@ -48,6 +62,7 @@ for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/dblp.json"
     end
 end
 
+papers_per_year
 
 h = Hypergraph(length(nodes), 0)
 edges_distribution = []
@@ -76,9 +91,11 @@ for v in 1:nhv(h)
     push!(nodes_distribution, length(gethyperedges(h,v)))
 end
 
+h
 
 savefig(histogram(nodes_distribution), "data/dblp.nodes.png")
 savefig(histogram(edges_distribution), "data/dblp.edges.png")
 
-hg_save("data/dblp.hgf",h)
+#hg_save("data/dblp.hgf", h)
+
 
