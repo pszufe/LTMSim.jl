@@ -1,5 +1,5 @@
 using Pkg, Distributed
-addprocs(2)
+addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")
@@ -31,7 +31,7 @@ for algo in algorithms
 end
 
 nvalues = range(0.2, stop=0.8, step=0.1)
-runs = 1
+runs = 50
 
 for (index, h) in enumerate(hgs)
     println("Index=$index, $(hg_files[index])")

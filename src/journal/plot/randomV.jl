@@ -2,22 +2,23 @@ using Pkg
 Pkg.activate(".")
 using LTMSim
 using SimpleHypergraphs
-using DataFrames
-using Statistics
 using PyPlot
-using Random
 using Serialization
 using LaTeXStrings
 
 
 project_path = dirname(pathof(LTMSim))
 
-fname = "randV_randE.data" #same for ranV propE05
-pname = "randV_randE.png"
+fname = "randV_propE05.data" #"randV_randE.data" 
+pname = "randV_propE05.png" #"randV_randE.png"
 data_path = joinpath(project_path, "..", "res", "journal", fname)
 
 hg_files = readdir(joinpath(project_path, "..", "data", "hgs"))
 hg_names = [split(file, ".")[1] for file in hg_files]
+
+hg_names[8] = "music-rev"
+hg_names[10] = "rest.-rev"
+hg_names[11] = "bars-rev"
 
 #
 # DATA
@@ -29,7 +30,6 @@ hgs = [prune_hypergraph!(hg_load(joinpath(project_path, "..", "data", "hgs", hg_
 #
 # PLOTTING INFO
 #
-
 algorithms = [
     "BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)"
 ]
@@ -93,15 +93,15 @@ plt.legend(fontsize="20")
 plt.xticks(range(0, (length(hg_names))*2.4, step=2.5), hg_names, fontsize="20", rotation=0)
 plt.yticks(fontsize="xx-large")
 
-#title("randV - propE05", fontstyle = "italic", fontsize="xx-large")
+title("randV - propE05", fontstyle = "italic", fontsize="xx-large")
 
 plt.ylim(0, 0.7)
-ylabel("Influence set size", fontstyle = "italic", fontsize="20", labelpad=10)
+ylabel("Seed set size / n", fontstyle = "italic", fontsize="20", labelpad=10)
 
 plt.tight_layout()
 gcf()
 
-#PyPlot.savefig(joinpath(project_path, "..", "res", "journal", "plot", pname))
+PyPlot.savefig(joinpath(project_path, "..", "res", "journal", "plot", pname))
 
 
 #
