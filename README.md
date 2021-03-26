@@ -11,9 +11,9 @@ by
 - Przemyslaw Szufel
 
 In case you use the software, please cite:
-```
-Antelmi A., Cordasco G., Spagnuolo C., Szufel P. (2020) Information Diffusion in Complex Networks: A Model Based on Hypergraphs and Its Analysis. In: Kamiński B., Prałat P., Szufel P. (eds) Algorithms and Models for the Web Graph. WAW 2020. Lecture Notes in Computer Science, vol 12091. Springer, Cham. https://doi.org/10.1007/978-3-030-48478-1_3
-```
+
+> Antelmi A., Cordasco G., Spagnuolo C., Szufel P. (2020) Information Diffusion in Complex Networks: A Model Based on Hypergraphs and Its Analysis. In: Kamiński B., Prałat P., Szufel P. (eds) Algorithms and Models for the Web Graph. WAW 2020. Lecture Notes in Computer Science, vol 12091. Springer, Cham. https://doi.org/10.1007/978-3-030-48478-1_3
+
 
 
 | **Documentation** | **Build Status** |
