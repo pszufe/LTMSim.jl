@@ -10,9 +10,9 @@ using LaTeXStrings
 
 project_path = dirname(pathof(LTMSim))
 
-fname = "propV_randE.data" #"propV_propE.data" 
+fname = "propV_propE05.data" #"propV_randE.data"  
 data_path = joinpath(project_path, "..", "res", "journal", fname)
-res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_randE")
+res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_propE05") #propV_randE
 
 hg_files = readdir(joinpath(project_path, "..", "data", "hgs"))
 hg_names = [split(file, ".")[1] for file in hg_files]
@@ -87,12 +87,12 @@ for (index, hg_name) in enumerate(hg_names)
     ylabel("Seed set size / n", fontstyle = "italic", fontsize="xx-large", labelpad=10) #fontweight="semibold",
     xlabel("Thresholds", fontstyle = "italic", fontsize="xx-large", labelpad=10) #, fontweight="semibold"
 
-    title("propV_randE_$hg_name", fontstyle = "italic", fontsize="xx-large")
+    title("propV_propE_$hg_name", fontstyle = "italic", fontsize="xx-large")
 
     plt.tight_layout()
     gcf()
 
-    PyPlot.savefig(joinpath(res_path, "propV_randE_$hg_name.png"))
+    PyPlot.savefig(joinpath(res_path, "propV_propE_$hg_name.png"))
 
     close()
 

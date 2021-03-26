@@ -1,7 +1,7 @@
 # LTMSim.jl
 
 Software accompying the paper:
-*Determinants of optimality of Information diffusion on hypergraphs*
+*Social Influence Maximization in Hypergraphs*
 
 by
 
@@ -9,6 +9,12 @@ by
 - Gennaro Cordasco
 - Carmine Spagnuolo
 - Przemyslaw Szufel
+
+In case you use the software, please cite:
+```
+Antelmi A., Cordasco G., Spagnuolo C., Szufel P. (2020) Information Diffusion in Complex Networks: A Model Based on Hypergraphs and Its Analysis. In: Kamiński B., Prałat P., Szufel P. (eds) Algorithms and Models for the Web Graph. WAW 2020. Lecture Notes in Computer Science, vol 12091. Springer, Cham. https://doi.org/10.1007/978-3-030-48478-1_3
+```
+
 
 | **Documentation** | **Build Status** |
 |---------------|--------------|
@@ -24,9 +30,9 @@ Pkg.add(PackageSpec(url="https://github.com/pszufe/LTMSim.jl"))
 
 ## Replicating the simulation experiments results
 
-Once the simulation package with its dependencies is installed get the `experiments.jl` file to actually run the simulations. You might want to edit the addprocs command in that file to pararelize the simulation over the amount of CPU cores on your machine (we recommend running the simulation on a server having at least 32 CPU/vCPU cores - in that case the simulation will take few hours to complete). Once the addprocs line has been edited run the command:
+Once the simulation package with its dependencies is installed get the `experiments.sh` file to actually run the simulations. You might want to edit the addprocs command in each script (located in src/experiments/) to pararelize the simulation over the amount of CPU cores on your machine (we recommend running the simulation on a server having at least 32 CPU/vCPU cores - in that case the simulation will take few hours to complete). Once the addprocs line has been edited run the command:
 ```bash
-julia experiments.jl
+experiments.sh
 ```
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg

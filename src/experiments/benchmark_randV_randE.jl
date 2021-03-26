@@ -1,5 +1,5 @@
 using Pkg, Distributed
-addprocs(2)
+addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")
@@ -16,7 +16,7 @@ res_path = joinpath(project_path, "..", "res", "journal", "benchmark_randV_randE
 hg_files = readdir(data_path)
 hgs = [prune_hypergraph!(hg_load(joinpath(data_path, hg_file))) for hg_file in hg_files]
 
-runs = 2
+runs = 50
 data = Dict{String, Vector{Vector{Float64}}}()
 
 push!(data, "BinarySearch(H)"=>Vector{Vector{Float64}}())
@@ -29,7 +29,7 @@ push!(data, "Greedy(H)-noOpt"=>Vector{Vector{Float64}}())
 push!(data, "Greedy([H]₂)-noOpt"=>Vector{Vector{Float64}}())
 push!(data, "SubTSS(H)-noOpt"=>Vector{Vector{Float64}}())
 
-for index in 1:2#length(hgs)
+for index in 1:length(hgs)
     println("Index=$index, $(hg_files[index])")
 
     h = hgs[index]
