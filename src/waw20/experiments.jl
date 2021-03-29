@@ -141,4 +141,3 @@ gcf()
 
 plt.tight_layout(.5)
 
-PyPlot.savefig("/Users/carminespagnuolo/Dropbox/LTMSim.jl/res/scemek.png")

@@ -1,20 +1,36 @@
 using Pkg
 Pkg.activate(".");
 using CSV
+using Dates
 using DataFrames
 using SimpleHypergraphs
 using LightGraphs
 using Plots
 using JSON
-#https://data.mendeley.com/datasets/ct8f9skv97/1
+
+# download the data from 
+# https://data.mendeley.com/datasets/ct8f9skv97/1
 df = DataFrame()
 
 nodes = Dict{String, Int}()
 edges = Vector{Vector{String}}()
 nodeid = 1
-for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/nbagames.json")
+
+df = DateFormat("y-m-dTH:M:S.000+0000")
+
+matches_per_year = Dict{Int, Int}()
+
+for line in readlines("data/json/nbagames.json")
     jsonline = JSON.parse(line)
     edge = Vector{String}()
+
+    strdate = collect(values(jsonline["date"]))[1]
+    dt = Date(strdate, df)
+    year = Dates.year(dt)
+
+    year < 2012 && continue
+
+    matches_per_year[year] = get!(matches_per_year, year, 0) + 1
 
     for player in values(jsonline["teams"][1]["players"])
         push!(edge, player["player"])
@@ -33,6 +49,8 @@ for line in readlines("/Users/carminespagnuolo/Downloads/ct8f9skv97-1/nbagames.j
         end
     end
 end
+matches_per_year
+
 
 h = Hypergraph{Bool}(length(nodes), 0)
 
@@ -66,6 +84,7 @@ for v in 1:nhv(h)
     push!(nodes_distribution, length(gethyperedges(h,v)))
 end
 
+h
 
 savefig(histogram(nodes_distribution), "data/nba.nodes.png")
 savefig(histogram(edges_distribution), "data/nba.edges.png")

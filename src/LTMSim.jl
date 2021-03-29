@@ -10,19 +10,27 @@ using CSV
 using Random
 using LaTeXStrings
 
+
 export generateHypergraph
 export simulate!
 export randMetaV, randMetaE
 export proportionalMetaV, proportionalMetaE
 
 export randomH, randomHkuniform, randomHduniform, randomHpreferential
-export bisect, greedy_tss, greedy_tss_2section, sub_tss, sub_tss_opt1, sub_tss_opt2, sub_tss_opt3, sub_tss_opt4
-
 export dual
 
+export bisect, greedy_tss, greedy_tss_2section 
+export sub_tss
+export optimize_seed_set
+
+
 include("tools.jl")
-include("random_models.jl")
-include("heuristics.jl")
-include("dual.jl")
+
+include("models/random_models.jl")
+include("models/dual.jl")
+
+include("heuristics/additive.jl")
+include("heuristics/subtractive.jl")
+include("heuristics/optimization.jl")
 
 end # module
