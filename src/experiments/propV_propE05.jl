@@ -1,5 +1,12 @@
+"""
+    Fourth experimental scenario.
+    
+    In this experimental scenario,  we varied each node threshold proportionally 
+    - from 0.2 to 0.8 - to the degree of the node, 
+    while we used a majority policy for hyperedges.
+"""
 using Pkg, Distributed
-addprocs(4)
+#addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")

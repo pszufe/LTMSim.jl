@@ -19,7 +19,7 @@ function bisect(h, metaV, metaE; opt=false)
     @assert length(sortedVind) == length(degrees)
     right = length(sortedVind)
     while left < right
-        location = Int(ceil( (left + right)/2))
+        location = ceil(Int, (left + right)/2)
         actE = zeros(Bool, nhe(h))
         actV = zeros(Bool, nhv(h))
         # up to the first location true and remainder zeros
@@ -64,48 +64,48 @@ function greedy_tss(h, metaV, metaE; opt=false)
         heus = gethyperedges(h,v)
         d = 0
         for he in heus
-            d+=1
+            d += 1
         end
         push!(U, v => d)
     end
 
     while length(U) != 0
-         #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
-		 maxv_val, maxv_key = findmax(U)
-         delete!(U, maxv_key)
+        #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
+        maxv_val, maxv_key = findmax(U)
+        delete!(U, maxv_key)
 
-         S[maxv_key] = maxv_val
+        S[maxv_key] = maxv_val
 
-         actE = zeros(Bool, nhe(h))
-         actV = zeros(Bool, nhv(h))
+        actE = zeros(Bool, nhe(h))
+        actV = zeros(Bool, nhv(h))
 
-         for s in S
-            actV[s.first] = true
-         end
+        for s in S
+        actV[s.first] = true
+        end
 
-         simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
+        simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
 
-         if simres.actvs == nhv(h)
-             break
-         end
+        if simres.actvs == nhv(h)
+            break
+        end
 
          # comment this for to implement
          # a static greedy approach
-         for he in gethyperedges(h,maxv_key)
-             for nv in getvertices(h,he.first)
-                 if !haskey(U, nv.first)
-                     continue
-                 end
-                 d = 0
-                 for he2 in gethyperedges(h, nv.first)
-                     if ! actE[he2.first]
-                         d+=1
-                     end
-                 end
+        for he in gethyperedges(h,maxv_key)
+            for nv in getvertices(h,he.first)
+                
+                !haskey(U, nv.first) && continue
+                
+                d = 0
+                for he2 in gethyperedges(h, nv.first)
+                    if ! actE[he2.first]
+                        d+=1
+                    end
+                end
 
-                 push!(U, nv.first => d)
-             end
-         end
+                push!(U, nv.first => d)
+            end
+        end
     end
 
     actE = zeros(Bool, nhe(h))
@@ -156,43 +156,42 @@ function greedy_tss_2section(h, metaV, metaE; opt=false)
     end
 
     while length(U) != 0
-		 #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
-		 maxv_val, maxv_key = findmax(U)
+        #maxv = sort!(collect(U), by=x->x[2], rev = true)[1]
+        maxv_val, maxv_key = findmax(U)
 
-         delete!(U, maxv_key)
-         S[maxv_key] = maxv_val
+        delete!(U, maxv_key)
+        S[maxv_key] = maxv_val
 
-         actE = zeros(Bool, nhe(h))
-         actV = zeros(Bool, nhv(h))
+        actE = zeros(Bool, nhe(h))
+        actV = zeros(Bool, nhv(h))
 
-         for s in S
-              actV[s.first] = true
-         end
-	     simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
+        for s in S
+            actV[s.first] = true
+        end
+        simres = simulate!(h, actV, actE, metaV, metaE; printme = false)
 
-         if simres.actvs == nhv(h)
-             break
-         end
+        if simres.actvs == nhv(h)
+        break
+        end
 
-         visited = Set{Int}()
-         for he in gethyperedges(h, maxv_key)
+        visited = Set{Int}()
+        for he in gethyperedges(h, maxv_key)
 
-             for nv in getvertices(h,he.first)
+            for nv in getvertices(h,he.first)
 
-                 if !haskey(U,nv.first) || nv.first in visited
-                     continue
-                 end
-                 push!(visited, nv.first)
+                (!haskey(U,nv.first) || nv.first in visited) && continue
 
-                 d = Set{Int}()
-                 for he2 in gethyperedges(h, nv.first)
-                     if ! actE[he2.first]
-                         push!.(Ref(d), keys(getvertices(h, he2.first)))
-                     end
-                 end
-                 U[nv.first] = length(d)
-             end
-         end
+                push!(visited, nv.first)
+
+                d = Set{Int}()
+                for he2 in gethyperedges(h, nv.first)
+                    if ! actE[he2.first]
+                        push!.(Ref(d), keys(getvertices(h, he2.first)))
+                    end
+                end
+                U[nv.first] = length(d)
+            end
+        end
     end
 
     if opt

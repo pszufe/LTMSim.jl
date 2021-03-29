@@ -1,14 +1,15 @@
+
+"""
+ Just counting the number of edges
+ in the corresponding clique-expansion
+ of each hypergraph
+"""
 using Pkg
 Pkg.activate(".")
 using LTMSim
 using SimpleHypergraphs
-#, DataFrames, SimpleHypergraphs, Statistics, Plots, PyPlot, Random, Serialization, LaTeXStrings
 
-#
-# Count the number of edges
-# in the corresponding clique-expansion
-# of each hypergraph
-#
+
 project_path = dirname(pathof(LTMSim))
 data_path = joinpath(project_path, "..", "data", "hgs")
 

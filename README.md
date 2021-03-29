@@ -30,10 +30,14 @@ Pkg.add(PackageSpec(url="https://github.com/pszufe/LTMSim.jl"))
 
 ## Replicating the simulation experiments results
 
-Once the simulation package with its dependencies is installed get the `experiments.sh` file to actually run the simulations. You might want to edit the addprocs command in each script (located in src/experiments/) to pararelize the simulation over the amount of CPU cores on your machine (we recommend running the simulation on a server having at least 32 CPU/vCPU cores - in that case the simulation will take few hours to complete). Once the addprocs line has been edited run the command:
+Once the simulation package with its dependencies is installed, you get the `experiments.sh` file to actually run all the experimental scenarios. You can also run a single experiment (located under `src/experiments/ `). For instance, running
 ```bash
-experiments.sh
+julia -p 4 benchmark_randV_randE.jl
 ```
+The parameter `-p` allows to run the script over multiple processes (4 in this case).
+
+You might want to edit the number of processes to parallelize the simulation over the amount of CPU cores on your machine (we recommend running the simulation on a server having at least 32 CPU/vCPU cores - in that case the simulation will take few hours to complete). 
+
 
 [docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg

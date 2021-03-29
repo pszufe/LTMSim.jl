@@ -1,5 +1,12 @@
+"""
+    Second experimental scenario.
+    
+    In this experimental scenario, we fixed each node threshold 
+    to a random value between 1 and its degree, varying it at each run of the experiment. 
+    We used a majority policy for the hyperedge thresholds, instead.
+"""
 using Pkg, Distributed
-addprocs(4)
+#addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")
@@ -19,10 +26,10 @@ hgs = [prune_hypergraph!(hg_load(joinpath(data_path, hg_file))) for hg_file in h
 runs = 50
 data = Dict{String, Vector{Vector{Int}}}()
 
-push!(data, "BinarySearch(H)"=>Vector{Vector{Int}}())
-push!(data, "Greedy(H)"=>Vector{Vector{Int}}())
-push!(data, "Greedy([H]₂)"=>Vector{Vector{Int}}())
-push!(data, "SubTSS(H)"=>Vector{Vector{Int}}())
+push!(data, "BinarySearch(H)" => Vector{Int}[])
+push!(data, "Greedy(H)" => Vector{Int}[])
+push!(data, "Greedy([H]₂)" => Vector{Int}[])
+push!(data, "SubTSS(H)" => Vector{Int}[])
 
 for index in 1:length(hgs)
     println("Index=$index, $(hg_files[index])")

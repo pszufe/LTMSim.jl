@@ -1,5 +1,14 @@
+"""
+    Execution time comparison.
+
+    As for the first experimental scenario, we fixed
+    random thresholds for both nodes and hyperedges.
+
+    For each heuristic, we consider the average time (in seconds) 
+    required to complete the task.
+"""
 using Pkg, Distributed
-addprocs(4)
+#addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")
@@ -19,15 +28,15 @@ hgs = [prune_hypergraph!(hg_load(joinpath(data_path, hg_file))) for hg_file in h
 runs = 50
 data = Dict{String, Vector{Vector{Float64}}}()
 
-push!(data, "BinarySearch(H)"=>Vector{Vector{Float64}}())
-push!(data, "Greedy(H)"=>Vector{Vector{Float64}}())
-push!(data, "Greedy([H]₂)"=>Vector{Vector{Float64}}())
-push!(data, "SubTSS(H)"=>Vector{Vector{Float64}}())
+push!(data, "BinarySearch(H)" => Vector{Float64}[])
+push!(data, "Greedy(H)" => Vector{Float64}[])
+push!(data, "Greedy([H]₂)" => Vector{Float64}[])
+push!(data, "SubTSS(H)" => Vector{Float64}[])
 
-push!(data, "BinarySearch(H)-noOpt"=>Vector{Vector{Float64}}())
-push!(data, "Greedy(H)-noOpt"=>Vector{Vector{Float64}}())
-push!(data, "Greedy([H]₂)-noOpt"=>Vector{Vector{Float64}}())
-push!(data, "SubTSS(H)-noOpt"=>Vector{Vector{Float64}}())
+push!(data, "BinarySearch(H)-noOpt" => Vector{Float64}[])
+push!(data, "Greedy(H)-noOpt" => Vector{Float64}[])
+push!(data, "Greedy([H]₂)-noOpt" => Vector{Float64}[])
+push!(data, "SubTSS(H)-noOpt" => Vector{Float64}[])
 
 for index in 1:length(hgs)
     println("Index=$index, $(hg_files[index])")
@@ -61,10 +70,10 @@ for index in 1:length(hgs)
     push!(data["SubTSS(H)"], [r[4] for r in results])
 
     #no-opt
-    push!(data["Greedy([H]₂)-noOpt"], [r[9] for r in results])
-    push!(data["BinarySearch(H)-noOpt"], [r[10] for r in results])
-    push!(data["Greedy(H)-noOpt"], [r[11] for r in results])
-    push!(data["SubTSS(H)-noOpt"], [r[12] for r in results])
+    push!(data["Greedy([H]₂)-noOpt"], [r[5] for r in results])
+    push!(data["BinarySearch(H)-noOpt"], [r[6] for r in results])
+    push!(data["Greedy(H)-noOpt"], [r[7] for r in results])
+    push!(data["SubTSS(H)-noOpt"], [r[8] for r in results])
 end
 
 

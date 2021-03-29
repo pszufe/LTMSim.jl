@@ -1,3 +1,8 @@
+"""
+    Script to generate lineplot graphs associated with:
+    - Experiment 3 (propV_randE.jl)
+    - Experiment 4 (propV_propE05.jl)
+"""
 using Pkg
 Pkg.activate(".")
 using LTMSim
@@ -94,8 +99,7 @@ for (index, hg_name) in enumerate(hg_names)
 
     PyPlot.savefig(joinpath(res_path, "propV_propE_$hg_name.png"))
 
-    close()
-
+    plt.close()
 end
 
 

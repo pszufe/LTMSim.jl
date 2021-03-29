@@ -1,5 +1,12 @@
+"""
+    Third experimental scenario.
+    
+    In this experimental scenario, we varied each node threshold proportionally 
+    - from 0.2 to 0.8 - to the degree of the node, 
+    and fixed each hyperedge threshold to a random value between 1 and its size.
+"""
 using Pkg, Distributed
-addprocs(4)
+#addprocs(4)
 Pkg.activate(".")
 @everywhere using Distributed, Pkg
 @everywhere Pkg.activate(".")
