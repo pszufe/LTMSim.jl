@@ -1,7 +1,7 @@
 """
-    Script to generate lineplot graphs associated with:
-    - Experiment 3 (propV_randE.jl)
-    - Experiment 4 (propV_propE05.jl)
+    An utility script to store plotting data to be used with LaTex.  
+        - Experiment 3 (propV_randE.jl)
+        - Experiment 4 (propV_propE05.jl)
 """
 
 using Pkg
@@ -12,13 +12,16 @@ using PyPlot
 using Statistics
 using Serialization
 using LaTeXStrings
+using DataFrames
+using CSV
 
 
 project_path = dirname(pathof(LTMSim))
 
-fname = "propV_randE_rev.data" #"propV_propE05.data" #"propV_randE.data"  
+fname = "propV_propE05_rev.data" #"propV_propE05.data" #"propV_randE.data"  
+type = "propV_propE"
 data_path = joinpath(project_path, "..", "res", "journal", fname)
-res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_randE") #propV_randE propV_propE05
+res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_propE05") #propV_randE propV_propE05
 
 hg_files = readdir(joinpath(project_path, "..", "data", "hgs"))
 hg_names = [split(file, ".")[1] for file in hg_files]
@@ -56,6 +59,10 @@ labels_dict = Dict{String, String}(
 #
 nvalues = range(0.2, stop=0.8, step=0.1)
 
+latex_dict = Dict{String, Array{Float64}}(
+    "x" => collect(nvalues)
+)
+
 colorz=["#2C7BB6", "#D7191C", "#FF8900", "#33CC33", "#cc0099", "#4d4dff", "#008080", "#2C7BB6"]
 
 
@@ -76,6 +83,11 @@ for (index, hg_name) in enumerate(hg_names)
         for v=1:length(collect((nvalues)))
             yval = mean(data[algo][hg_name][v] / nhv(hgs[index]))
             push!(y, yval)
+
+            push!(
+                get!(latex_dict, "$hg_name$algo", Array{Float64, 1}()),
+                yval
+            )
         end
 
         push!(
@@ -99,19 +111,19 @@ for (index, hg_name) in enumerate(hg_names)
     ylabel("Seed set size / n", fontstyle = "italic", fontsize="xx-large", labelpad=10) #fontweight="semibold",
     xlabel("Thresholds", fontstyle = "italic", fontsize="xx-large", labelpad=10) #, fontweight="semibold"
 
-    title("propV_randE_$hg_name", fontstyle = "italic", fontsize="xx-large")
+    title("$(type)_$hg_name", fontstyle = "italic", fontsize="xx-large")
 
     plt.tight_layout()
     gcf()
 
-    PyPlot.savefig(joinpath(res_path, "propV_randE_$hg_name.png"))
+    PyPlot.savefig(joinpath(res_path, "$(type)_$hg_name.png"))
 
     plt.close()
 end
 
 
-h = hgs[5]
-
-w3c_v_dist = [length(gethyperedges(h, v)) for v in 1:nhv(h)]
-
-sum(w3c_v_dist[w3c_v_dist .== 1]) * 100 / length(w3c_v_dist)
+#
+# TO LATEX
+#
+df = DataFrame(latex_dict)
+CSV.write(joinpath(project_path, "..", "res", "journal", "plot", "latex", "$(type)_rev.csv"), df) #propV_propE05_rev
