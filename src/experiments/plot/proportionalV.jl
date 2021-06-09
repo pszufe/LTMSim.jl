@@ -3,6 +3,7 @@
     - Experiment 3 (propV_randE.jl)
     - Experiment 4 (propV_propE05.jl)
 """
+
 using Pkg
 Pkg.activate(".")
 using LTMSim
@@ -15,9 +16,9 @@ using LaTeXStrings
 
 project_path = dirname(pathof(LTMSim))
 
-fname = "propV_propE05.data" #"propV_randE.data"  
+fname = "propV_randE_rev.data" #"propV_propE05.data" #"propV_randE.data"  
 data_path = joinpath(project_path, "..", "res", "journal", fname)
-res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_propE05") #propV_randE
+res_path = joinpath(project_path, "..", "res", "journal", "plot", "propV_randE") #propV_randE propV_propE05
 
 hg_files = readdir(joinpath(project_path, "..", "data", "hgs"))
 hg_names = [split(file, ".")[1] for file in hg_files]
@@ -33,14 +34,20 @@ hgs = [prune_hypergraph!(hg_load(joinpath(project_path, "..", "data", "hgs", hg_
 # PLOTTING INFO
 #
 algorithms = [
-    "BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)"
+    "BinarySearch(H)", "Greedy([H]₂)", "Greedy(H)", "SubTSS(H)",
+    "BinarySearch(H)-noOpt", "Greedy([H]₂)-noOpt", "Greedy(H)-noOpt", "SubTSS(H)-noOpt"
 ]
+
 
 labels_dict = Dict{String, String}(
     "BinarySearch(H)" => "StaticGreedy",
+    "BinarySearch(H)-noOpt" => "StaticGreedy-noOpt",
     "Greedy(H)" => "DynamicGreedy",
+    "Greedy(H)-noOpt" => "DynamicGreedy-noOpt",
     "Greedy([H]₂)" => L"DynamicGreedy_{[H]_2}",
-	"SubTSS(H)" => "SubTSS"
+    "Greedy([H]₂)-noOpt" => L"DynamicGreedy_{[H]_2}-noOpt",
+    "SubTSS(H)" => "SubTSS",
+    "SubTSS(H)-noOpt" => "SubTSS-noOpt"
 )
 
 
@@ -81,23 +88,23 @@ for (index, hg_name) in enumerate(hg_names)
         c+=1
     end
 
-    plt.legend(labels)#, fontsize="x-large")
+    plt.legend(labels, ncol=2)#, fontsize="x-large")
 
     plt.xticks(nvalues, fontsize="x-large") #range(0, length(ticks) * 2, step=2),
     plt.yticks(fontsize="x-large")
 
     #plt.xlim(-2, length(ticks)*2)
-    plt.ylim(0, 0.8)
+    plt.ylim(0, 1.05)
 
     ylabel("Seed set size / n", fontstyle = "italic", fontsize="xx-large", labelpad=10) #fontweight="semibold",
     xlabel("Thresholds", fontstyle = "italic", fontsize="xx-large", labelpad=10) #, fontweight="semibold"
 
-    title("propV_propE_$hg_name", fontstyle = "italic", fontsize="xx-large")
+    title("propV_randE_$hg_name", fontstyle = "italic", fontsize="xx-large")
 
     plt.tight_layout()
     gcf()
 
-    PyPlot.savefig(joinpath(res_path, "propV_propE_$hg_name.png"))
+    PyPlot.savefig(joinpath(res_path, "propV_randE_$hg_name.png"))
 
     plt.close()
 end
